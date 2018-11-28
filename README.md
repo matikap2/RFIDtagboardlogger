@@ -1,6 +1,6 @@
 # designlab_rc522
 
-Projekt w ramach przedmiotu DESIGN LABORATORY
+Projekt w ramach przedmiotu DESIGN LABORATORY & SMP2
 
 
 Biblioteka do komunikacji z modułem RFID-RC522 poprzez SPI       
