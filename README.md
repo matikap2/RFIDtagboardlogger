@@ -1,4 +1,4 @@
-# designlab_rc522
+# RFIDtagboardlogger
 
 Projekt w ramach przedmiotu DESIGN LABORATORY & SMP2
 
