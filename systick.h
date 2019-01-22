@@ -9,7 +9,7 @@ void SysTick_Init(void);
 void SysTick_Decrement(void);
 
 /* Delay functions */
-void Delay_us(uint32_t);
+void Delay_10us(uint32_t);
 void Delay_1ms(void);
 void Delay_ms(uint32_t);
 

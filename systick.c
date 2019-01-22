@@ -11,7 +11,7 @@ void SysTick_Init(void){
 
 void SysTick_Decrement(void){
 	if (sysTickCounter != 0x00) {
-		sysTickCounter--;
+		sysTickCounter--;								//decrement variable on every interrupt
 	}
 }
 
