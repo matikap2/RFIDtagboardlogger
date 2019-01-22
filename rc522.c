@@ -2,7 +2,7 @@
 
 /* Write/Read help functions */
 void RC522_writeReg(uint8_t adr, uint8_t val){
-	adr = (adr << 1) & 0x7E;
+	adr = (adr << 1) & 0x7E;												//frame format (datasheet 8.1.2)							
 	SPI1_writeReg(adr, val);
 }
 
@@ -10,7 +10,7 @@ void RC522_writeReg(uint8_t adr, uint8_t val){
 uint8_t RC522_readReg(uint8_t adr){
 	uint8_t temp;
 	
-	adr = ((adr << 1) & 0x7E) | 0x80;
+	adr = ((adr << 1) & 0x7E) | 0x80;								//frame format (datasheet 8.1.2)
 	temp = SPI1_readReg(adr);
 	
 	return temp;
@@ -32,34 +32,34 @@ void RC522_clearMask(uint8_t reg, uint8_t mask){
 void RC522_Init(void){
 	RC522_Reset();
 	//prescalers, antenna gain, antenna on
-	RC522_writeReg(TModeReg, 0x8D);
+	RC522_writeReg(TModeReg, 0x8D);					//Configuring timer inside RC522 - prescalers
 	RC522_writeReg(TPrescalerReg, 0x3E);
 	RC522_writeReg(TReloadRegL, 30);
 	RC522_writeReg(TReloadRegH, 0);
 	
-	RC522_writeReg(RFCfgReg, 0x70);
-	RC522_writeReg(TxAutoReg, 0x40);
-	RC522_writeReg(ModeReg, 0x3D);
+	RC522_writeReg(RFCfgReg, 0x70);					//antenna gain 48dB
+	RC522_writeReg(TxAutoReg, 0x40);				//tx modulation setting
+	RC522_writeReg(ModeReg, 0x3D);					//defining mode for tx and rx
 	
-	RC522_antennaOn();
+	RC522_antennaOn();											//antenna on
 }
 
 void RC522_antennaOn(void){
 	uint8_t temp;
 	
-	temp = RC522_readReg(TxControlReg);
+	temp = RC522_readReg(TxControlReg);			//turning on antenna
 	if (!(temp & 0x03))
 		RC522_setMask(TxControlReg, 0x03);
 }
 
 
 void RC522_antennaOff(void){
-	RC522_clearMask(TxControlReg, 0x03);
+	RC522_clearMask(TxControlReg, 0x03);		//turning off antenna
 }
 
 
 void RC522_Reset(void){
-	RC522_writeReg(CommandReg, PCD_RESETPHASE);
+	RC522_writeReg(CommandReg, PCD_RESETPHASE);		//soft reset
 }
 
 
@@ -68,7 +68,7 @@ void RC522_firmwareVer(void){
 	uint8_t temp;
 	
 	UART2_sendString("Wersja RC522\r\n");
-	temp = RC522_readReg(VersionReg);
+	temp = RC522_readReg(VersionReg);						//Read version of chip -> 0x12 probably counterfit chip (info google)
 	sprintf(buffer, "%x", temp);
 	UART2_sendString("0x");
 	UART2_sendString(buffer);
@@ -78,7 +78,7 @@ void RC522_firmwareVer(void){
 
 
 /* Main functions */
-uint8_t RC522_commandTag(uint8_t command, uint8_t* sendData, uint8_t sendLen, uint8_t* backData, uint16_t* backLen){
+uint8_t RC522_commandTag(uint8_t command, uint8_t* sendData, uint8_t sendLen, uint8_t* backData, uint16_t* backLen){		//communicating with Mifare card
 		uint8_t status = ERR;
 	uint8_t irqEn = 0x00;
 	uint8_t waitIRq = 0x00;
@@ -87,12 +87,12 @@ uint8_t RC522_commandTag(uint8_t command, uint8_t* sendData, uint8_t sendLen, ui
 	uint16_t i;
 
 	switch (command) {
-		case PCD_AUTHENT: {
+		case PCD_AUTHENT: {				//authentication command
 			irqEn = 0x12;
 			waitIRq = 0x10;
 			break;
 		}
-		case PCD_TRANSCEIVE: {
+		case PCD_TRANSCEIVE: {		//transceive command
 			irqEn = 0x77;
 			waitIRq = 0x30;
 			break;
@@ -101,10 +101,10 @@ uint8_t RC522_commandTag(uint8_t command, uint8_t* sendData, uint8_t sendLen, ui
 		break;
 	}
 
-	RC522_writeReg(CommIEnReg, irqEn | 0x80);
-	RC522_clearMask(CommIrqReg, 0x80);			// CRCIrq = 0
-	RC522_setMask(FIFOLevelReg, 0x80);
-	RC522_writeReg(CommandReg, PCD_IDLE);
+	RC522_writeReg(CommIEnReg, irqEn | 0x80);		//interrupt request
+	RC522_clearMask(CommIrqReg, 0x80);					//clearing all interrupts request bits
+	RC522_setMask(FIFOLevelReg, 0x80);					//Init FIFO
+	RC522_writeReg(CommandReg, PCD_IDLE);				//canceling current command
 
 	// Writing data to the FIFO
 	for (i = 0; i < sendLen; i++){
@@ -114,8 +114,8 @@ uint8_t RC522_commandTag(uint8_t command, uint8_t* sendData, uint8_t sendLen, ui
 	RC522_writeReg(CommandReg, command);
 	if (command == PCD_TRANSCEIVE) 				 
 		RC522_setMask(BitFramingReg, 0x80);	// StartSend=1,transmission of data starts
-	// Waiting to receive data to complete
-	i = 2000;	// i according to the clock frequency adjustment, the operator M1 card maximum waiting time 25ms
+	// Waiting for the command to complete so we can recieve
+	i = 2000;	// M1 card maximum waiting time 25ms
 	do {
 		// CommIrqReg[7..0]
 		// Set1 TxIRq RxIRq IdleIRq HiAlerIRq LoAlertIRq ErrIRq TimerIRq
@@ -125,7 +125,7 @@ uint8_t RC522_commandTag(uint8_t command, uint8_t* sendData, uint8_t sendLen, ui
 
 	RC522_clearMask(BitFramingReg, 0x80);	// StartSend=0
 
-	if (i != 0)  {
+	if (i != 0)  {	//Request didnt timeout
 		if (!(RC522_readReg(ErrorReg) & 0x1B)) {
 			status = OK;
 			if (n & irqEn & 0x01) status = NOTAGERR;
@@ -148,7 +148,7 @@ uint8_t RC522_commandTag(uint8_t command, uint8_t* sendData, uint8_t sendLen, ui
 }
 
 
-uint8_t RC522_request(uint8_t reqMode, uint8_t* TagType){
+uint8_t RC522_request(uint8_t reqMode, uint8_t* TagType){		//checking if there is tag nearby
 	uint8_t status;  
 	uint16_t backBits;																				// The received data bits
 
@@ -161,7 +161,7 @@ uint8_t RC522_request(uint8_t reqMode, uint8_t* TagType){
 }
 
 
-uint8_t RC522_antiCollision(uint8_t* serNum){
+uint8_t RC522_antiCollision(uint8_t* serNum){			//handle collisions if there is multiple tags nearby
 	uint8_t status;
 	uint8_t i;
 	uint8_t serNumCheck = 0;
@@ -172,11 +172,11 @@ uint8_t RC522_antiCollision(uint8_t* serNum){
 	serNum[1] = 0x20;
 	status = RC522_commandTag(PCD_TRANSCEIVE, serNum, 2, serNum, &unLen);
 	if (status == OK) {
-		// Check card serial number
+		// Checking checksum of tag (the checksum is ^ if all values)
 		for (i = 0; i < 4; i++){
 			serNumCheck ^= serNum[i];
 		}
-		if (serNumCheck != serNum[i]) 
+		if (serNumCheck != serNum[i]) //checksum should be the same
 			status = ERR;
 	}
 	return status;
@@ -194,7 +194,7 @@ void RC522_calcCRC(uint8_t* pIndata, uint8_t len, uint8_t* pOutData){
 	for (i = 0; i < len; i++){
 		RC522_writeReg(FIFODataReg, *(pIndata+i));
 	}
-	RC522_writeReg(CommandReg, PCD_CALCCRC);
+	RC522_writeReg(CommandReg, PCD_CALCCRC);			//sending calculation crc command
 
 	// Wait CRC calculation is complete
 	i = 0xFF;
@@ -209,7 +209,7 @@ void RC522_calcCRC(uint8_t* pIndata, uint8_t len, uint8_t* pOutData){
 }
 
 
-void RC522_Halt(void){
+void RC522_Halt(void){		//sends halt command for current tag
 	uint16_t unLen;
 	uint8_t buff[4]; 
 
