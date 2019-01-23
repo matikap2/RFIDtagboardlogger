@@ -10,14 +10,13 @@
 
 /* Init function */
 void SPI1_Init(void){
-	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN; //Enable clock on GPIO_A
-	RCC->APB2ENR |= RCC_APB2ENR_SPI1EN; //Enable clock on SPI
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN; 					//Enable clock on GPIO_A
+	RCC->APB2ENR |= RCC_APB2ENR_SPI1EN; 					//Enable clock on SPI
 	
-	GPIOA->AFR[0] |= 0x55500000;		//Alternate function for SCK/MISO/MOSI
-	GPIOA->MODER |= (1<<(4*2));			//OUTPUT for NSS
-	GPIOA->MODER |= (2<<(5*2)) | (2<<(6*2)) | (2<<(7*2));		//AF for SCK/MISO/MOSI
+	GPIOA->AFR[0] |= 0x55500000;																					//Alternate function for SCK/MISO/MOSI
+	GPIOA->MODER |= (1<<(4*2));																						//OUTPUT for NSS
+	GPIOA->MODER |= (2<<(5*2)) | (2<<(6*2)) | (2<<(7*2));									//AF for SCK/MISO/MOSI
 	GPIOA->OSPEEDR |= (3<<(4*2)) | (3<<(5*2)) | (3<<(6*2)) | (3<<(7*2));  //High speed
-	//GPIOA->PUPDR |= (1<<(6*2)); //Pull-up for MISO
 	
 	SPI1->CR1 |= SPI_CR1_MSTR;		//SPI in Master config
 	SPI1->CR1 |= SPI_CR1_BR;			//Baudrade divisor /256
@@ -30,9 +29,9 @@ void SPI1_Init(void){
 /* Send/Read functions */
 uint8_t SPI1_writeByte(uint8_t data){
 	while(!(SPI1->SR & SPI_SR_TXE));  //Wait until previous transfer complete
-	SPI1->DR = data; //Send data to SPI1
+	SPI1->DR = data; 									//Send data to SPI1
 	while(!(SPI1->SR & SPI_SR_RXNE)); //Wait until end of transfer
-	return SPI1->DR; //Read recived data
+	return SPI1->DR; 									//Read recived data
 }
 
 

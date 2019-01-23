@@ -5,13 +5,13 @@ static volatile uint32_t sysTickCounter;
 
 /* Init function */
 void SysTick_Init(void){
-	while (SysTick_Config(SystemCoreClock / 100000) != 0) {} //every 10us
+	while (SysTick_Config(SystemCoreClock / 100000) != 0) {} 	//every 10us
 }
 
 
 void SysTick_Decrement(void){
 	if (sysTickCounter != 0x00) {
-		sysTickCounter--;								//decrement variable on every interrupt
+		sysTickCounter--;																				//decrement variable on every interrupt
 	}
 }
 

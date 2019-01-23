@@ -29,38 +29,32 @@ void RTClock_Init(void){
 	
 	
 	if(!(RCC->BDCR & RCC_BDCR_LSERDY)){						//Check if LSE is stopped
-		RCC->BDCR |= RCC_BDCR_LSEON;										//Enable LSE
+		RCC->BDCR |= RCC_BDCR_LSEON;								//Enable LSE
 		while(!(RCC->BDCR & RCC_BDCR_LSERDY));			//Wait until LSE is working
 	}
 
-	//RCC->CSR |= RCC_CSR_LSION;											//Enable LSI
-	//while(!(RCC->CSR & RCC_CSR_LSIRDY));						//Wait until LSI is working
+	//RCC->CSR |= RCC_CSR_LSION;												//Enable LSI
+	//while(!(RCC->CSR & RCC_CSR_LSIRDY));							//Wait until LSI is working
 	
 	RCC->BDCR &= ~RCC_BDCR_RTCSEL;										//Clear clock source register
 	RCC->BDCR |= RCC_BDCR_RTCSEL_0;										//Set LSE as clock source
-	//RCC->BDCR |= RCC_BDCR_RTCSEL_1;										//Set LSI as clock source
+	//RCC->BDCR |= RCC_BDCR_RTCSEL_1;									  //Set LSI as clock source
 	RCC->BDCR |= RCC_BDCR_RTCEN;											//Enable RTC
 	
-	//RCC->APB1ENR |= RCC_APB1ENR_PWREN;	//PWR clock enable
-	//PWR->CR |= PWR_CR_DBP;							//Disable backup domain write protection
-	//RCC->APB1ENR &= ~RCC_APB1ENR_PWREN;	//PWR clock disable
-	
-	RTC->WPR = 0xCA;										//Disable RTC registers write protection
+	RTC->WPR = 0xCA;														//Disable RTC registers write protection
 	RTC->WPR = 0x53;
 	
 	RTC->ISR |= RTC_ISR_INIT;										//Enable RTC Init mode
-	while(!(RTC->ISR & RTC_ISR_INITF));		//Wait until register can be updated
+	while(!(RTC->ISR & RTC_ISR_INITF));					//Wait until register can be updated
 	
 	RTC->PRER = predivA<<16 | predivS;					//Set prescalers
-	RTC->TR = ((rtcTime.hours<<16) | 					//Set time
+	RTC->TR = ((rtcTime.hours<<16) | 						//Set time
 						(rtcTime.minutes<<8) | 
 						(rtcTime.seconds));
-	RTC->DR = ((rtcDate.year<<16) | 					//Set date
+	RTC->DR = ((rtcDate.year<<16) | 						//Set date
 						(rtcDate.dayWeek<<13) | 
 						(rtcDate.month<<8) |
 						(rtcDate.day));
-	//RTC->TR=0;
-	//RTC->DR=0;
 	RTC->CR &= ~RTC_CR_FMT;											//24h format
 	RTC->ISR &= ~RTC_ISR_INIT;									//Disable RTC Init mode
 	RTC->ISR &= ~RTC_ISR_RSF;										//Synchronization
@@ -77,7 +71,7 @@ void RTClock_getDate(rtcDate* RTCdt){
 	uint32_t temp;
 	
 	RTC->CR |= RTC_CR_BYPSHAD;
-	temp = RTC->DR;																		//get date from register
+	temp = RTC->DR;																		//Get date from register
 	
 	year = (temp & (RTC_DR_YT | RTC_DR_YU)) >> 16;
 	dayWeek = (temp & RTC_DR_WDU) >> 13;
@@ -98,7 +92,7 @@ void RTClock_getTime(rtcTime* RTCdt){
 	uint32_t temp;
 	
 	RTC->CR |= RTC_CR_BYPSHAD;
-	temp = RTC->TR;																	//get time from register
+	temp = RTC->TR;																	//Get time from register
 	
 	hours = (temp & (RTC_TR_HT | RTC_TR_HU)) >> 16;
 	minutes = (temp & (RTC_TR_MNT | RTC_TR_MNU)) >> 8;
@@ -116,13 +110,13 @@ void RTClock_setDate(rtcDate RTCdt){
 	uint8_t day = bin2bcd(RTCdt.day);
 	uint8_t dayWeek = bin2bcd(RTCdt.dayWeek);
 	
-	RTC->WPR = 0xCA;										//Disable RTC registers write protection
+	RTC->WPR = 0xCA;														//Disable RTC registers write protection
 	RTC->WPR = 0x53;
 	
 	RTC->ISR |= RTC_ISR_INIT;										//Enable RTC Init mode
-	while(!(RTC->ISR & RTC_ISR_INITF));		//Wait until register can be updated
+	while(!(RTC->ISR & RTC_ISR_INITF));					//Wait until register can be updated
 	
-	RTC->DR = ((year<<16) | 					//Set date
+	RTC->DR = ((year<<16) | 										//Set date
 						(dayWeek<<13) | 
 						(month<<8) |
 						day);
@@ -138,13 +132,13 @@ void RTClock_setTime(rtcTime RTCdt){
 	uint8_t minutes = bin2bcd(RTCdt.minutes);
 	uint8_t seconds = bin2bcd(RTCdt.seconds);
 	
-	RTC->WPR = 0xCA;										//Disable RTC registers write protection
+	RTC->WPR = 0xCA;														//Disable RTC registers write protection
 	RTC->WPR = 0x53;
 	
 	RTC->ISR |= RTC_ISR_INIT;										//Enable RTC Init mode
-	while(!(RTC->ISR & RTC_ISR_INITF));		//Wait until register can be updated
+	while(!(RTC->ISR & RTC_ISR_INITF));					//Wait until register can be updated
 	
-	RTC->TR = ((hours<<16) | 					//Set time
+	RTC->TR = ((hours<<16) | 										//Set time
 						(minutes<<8) | 
 						seconds);
 

@@ -123,7 +123,7 @@ void RC522_Reset(void);
 void RC522_firmwareVer(void);
 
 /* Main functions */
-uint8_t RC522_commandTag(uint8_t, uint8_t*, uint8_t, uint8_t*, uint16_t*);
+uint8_t RC522_commandTag(uint8_t*, uint8_t, uint8_t*, uint16_t*);
 uint8_t RC522_request(uint8_t, uint8_t*);
 uint8_t RC522_antiCollision(uint8_t*);
 void RC522_calcCRC(uint8_t*, uint8_t, uint8_t*);
