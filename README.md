@@ -37,5 +37,5 @@ After that, program using Arduino IDE.
 - Jan Gąsienica-Józkowy (https://github.com/Andropogon/)
 
 ## License
-Fell free to use.
+Feel free to use.
 
