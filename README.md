@@ -31,7 +31,7 @@ After that, program using Arduino IDE.
 - RTC
 - Connection to Firebase through Wi-Fi
 
-## Autors
+## Authors
 - Mateusz Kapala (https://github.com/matikap2/)
 - Jan Gąsienica-Józkowy (https://github.com/Andropogon/)
 
