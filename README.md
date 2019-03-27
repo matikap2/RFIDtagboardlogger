@@ -31,6 +31,8 @@ After that, program using Arduino IDE.
 - Debug through UART
 - RTC
 - Connection to Firebase through Wi-Fi
+#### Android app
+https://github.com/matikap2/RFIDtagboardlogger-app
 
 ## Authors
 - Mateusz Kapala (https://github.com/matikap2/)
