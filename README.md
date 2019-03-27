@@ -2,6 +2,8 @@
 
 Final project to Microprocessor's System II and Design Laboratory course at Electronics faculty.
 Simple logger of developement boards rented by students on laboratories.
+##### Android app
+https://github.com/matikap2/RFIDtagboardlogger-app
 
 ## Used modules
 
@@ -31,8 +33,6 @@ After that, program using Arduino IDE.
 - Debug through UART
 - RTC
 - Connection to Firebase through Wi-Fi
-#### Android app
-https://github.com/matikap2/RFIDtagboardlogger-app
 
 ## Authors
 - Mateusz Kapala (https://github.com/matikap2/)
